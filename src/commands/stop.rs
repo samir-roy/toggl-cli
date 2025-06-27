@@ -38,6 +38,11 @@ impl StopCommand {
                     .update_time_entry(stopped_time_entry.clone())
                     .await?;
 
+                // Wait 5 seconds to avoid rate limiting after updating time entry
+                if matches!(origin, StopCommandOrigin::CommandLine) {
+                    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                }
+
                 let message = match origin {
                     StopCommandOrigin::CommandLine => "Time entry stopped successfully".green(),
                     StopCommandOrigin::StartCommand => "Running time entry stopped".yellow(),

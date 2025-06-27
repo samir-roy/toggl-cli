@@ -96,6 +96,9 @@ impl StartCommand {
     ) -> ResultWithDefaultError<()> {
         StopCommand::execute(&api_client, StopCommandOrigin::StartCommand).await?;
 
+        // Wait 5 seconds to avoid rate limiting after stop command
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+
         let workspace_id = (api_client.get_user().await?).default_workspace_id;
         let entities = api_client.get_entities().await?;
 
@@ -151,6 +154,9 @@ impl StartCommand {
             println!("{}", "Failed to start time entry".red());
             return Err(started_entry_id.err().unwrap());
         }
+
+        // Wait 5 seconds to avoid rate limiting after creating time entry
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
         println!("{}\n{}", "Time entry started".green(), time_entry_to_create);
 
