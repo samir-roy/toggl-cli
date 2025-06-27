@@ -203,16 +203,19 @@ impl ApiClient for V9ApiClient {
         let tasks: HashMap<i64, Task> = network_tasks
             .unwrap_or_default()
             .iter()
-            .map(|t| {
-                (
-                    t.id,
-                    Task {
-                        id: t.id,
-                        name: t.name.clone(),
-                        project: projects.get(&t.project_id).unwrap().clone(),
-                        workspace_id: t.workspace_id,
-                    },
-                )
+            .filter_map(|t| {
+                // Only include tasks that have a valid project
+                projects.get(&t.project_id).map(|project| {
+                    (
+                        t.id,
+                        Task {
+                            id: t.id,
+                            name: t.name.clone(),
+                            project: project.clone(),
+                            workspace_id: t.workspace_id,
+                        },
+                    )
+                })
             })
             .collect();
 
